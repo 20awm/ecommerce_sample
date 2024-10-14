@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>New Product | Ecommerce Sample</title>
+</head>
+<body>
+<h2>Add New Product</h2>
+<form id="uploadForm" enctype="multipart/form-data">
+    <input type="text" id="name" name="name" placeholder="Product Name" required>
+    <input type="text" id="description" name="description" placeholder="Description" required>
+    <input type="number" id="price" name="price" placeholder="Price" step="0.01" required>
+    <input type="text" id="category" name="category" placeholder="Category" required>
+    <input type="number" id="stockQuantity" name="stockQuantity" placeholder="Stock Quantity" required>
+    <input type="text" id="sku" name="sku" placeholder="SKU" required>
+    <input type="file" id="image" name="image" accept="image/*" required>
+    <button type="submit">Upload</button>
+</form>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('name', document.getElementById('name').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('category', document.getElementById('category').value);
+        formData.append('stockQuantity', document.getElementById('stockQuantity').value);
+        formData.append('sku', document.getElementById('sku').value);
+        formData.append('image', document.getElementById('image').files[0]);
+
+        try {
+            const response = await fetch('http://localhost:8080/products/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Product uploaded successfully!');
+            } else {
+                alert('Failed to upload product.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while uploading the product.');
+        }
+    });
+</script>
+</body>
+</html>

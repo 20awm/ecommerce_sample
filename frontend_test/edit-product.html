@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Product | Ecommerce Sample</title>
+</head>
+<body>
+<h2>Edit Product</h2>
+<form id="editForm" enctype="multipart/form-data">
+    <input type="hidden" id="productId" name="productId" value="5">
+    <input type="text" id="name" name="name" placeholder="Product Name" required>
+    <input type="text" id="description" name="description" placeholder="Description" required>
+    <input type="number" id="price" name="price" placeholder="Price" step="0.01" required>
+    <input type="text" id="category" name="category" placeholder="Category" required>
+    <input type="number" id="stockQuantity" name="stockQuantity" placeholder="Stock Quantity" required>
+    <input type="text" id="sku" name="sku" placeholder="SKU" required>
+    <input type="file" id="image" name="image" accept="image/*">
+    <button type="submit">Update</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const productId = document.getElementById('productId').value;
+        try {
+            const response = await fetch(`http://localhost:8080/products/${productId}`);
+            if (response.ok) {
+                const product = await response.json();
+                document.getElementById('name').value = product.name;
+                document.getElementById('description').value = product.description;
+                document.getElementById('price').value = product.price;
+                document.getElementById('category').value = product.category;
+                document.getElementById('stockQuantity').value = product.stockQuantity;
+                document.getElementById('sku').value = product.sku;
+                // Note: Image URL is not set in the form, as it's a file input
+            } else {
+                alert('Failed to fetch product details.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while fetching the product details.');
+        }
+    });
+
+    document.getElementById('editForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const productId = document.getElementById('productId').value;
+        const formData = new FormData();
+        formData.append('name', document.getElementById('name').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('category', document.getElementById('category').value);
+        formData.append('stockQuantity', document.getElementById('stockQuantity').value);
+        formData.append('sku', document.getElementById('sku').value);
+        if (document.getElementById('image').files.length > 0) {
+            formData.append('image', document.getElementById('image').files[0]);
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/products/${productId}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Product updated successfully!');
+            } else {
+                alert('Failed to update product.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while updating the product.');
+        }
+    });
+</script>
+</body>
+</html>
