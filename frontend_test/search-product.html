@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Products</title>
+</head>
+<body>
+<h2>Search Products</h2>
+<form id="searchForm">
+    <input type="text" id="keyword" name="keyword" placeholder="Search..." required>
+    <button type="submit">Search</button>
+</form>
+<div id="searchResults"></div>
+
+<script>
+    document.getElementById('searchForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const keyword = document.getElementById('keyword').value;
+        try {
+            const response = await fetch(`http://localhost:8080/products/search?keyword=${keyword}`);
+            if (response.ok) {
+                const products = await response.json();
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = '';
+                products.forEach(product => {
+                    const productDiv = document.createElement('div');
+                    productDiv.textContent = `${product.name} - ${product.description}`;
+                    resultsDiv.appendChild(productDiv);
+                });
+            } else {
+                alert('Failed to search products.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while searching for products.');
+        }
+    });
+</script>
+</body>
+</html>

@@ -52,4 +52,8 @@ public class ProductService {
     public void deleteProduct(Long productId) {
         productRepository.deleteById(productId);
     }
+
+    public List<Product> searchProducts(String keyword) {
+        return productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+    }
 }

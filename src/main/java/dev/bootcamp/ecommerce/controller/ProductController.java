@@ -104,4 +104,9 @@ public class ProductController {
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
     }
+
+    @GetMapping("/search")
+    public List<Product> searchProducts(@RequestParam("keyword") String keyword) {
+        return productService.searchProducts(keyword);
+    }
 }
