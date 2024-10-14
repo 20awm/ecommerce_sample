@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "event")
 public class Event {
