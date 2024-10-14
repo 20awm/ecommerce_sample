@@ -1,0 +1,13 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "title": "Gathering",
+      "startOn": "2024-02-20T06:05:00.000000",
+      "completeOn": "2024-02-20T10:27:00.000000",
+      "participant": 100,
+      "location": "DEPOK",
+      "version": 0
+    }
+  ]
+}
