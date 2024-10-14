@@ -24,15 +24,5 @@ public class Application {
 //		System.out.println(helloWorld.sayHelloWorld());
 	}
 
-//	@Bean
-//	CommandLineRunner runner(
-//	) {
-//		return args -> {
-//			Event event = new Event(1,"Konser A",
-//					LocalDateTime.now(), LocalDateTime.now().plusHours(5),
-//					1000, Location.JAKARTA);
-//			log.info("Event: " + event);
-//		};
-//	}
 
 }
