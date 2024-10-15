@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,9 +24,8 @@ public class Order {
     private String shippingAddress;
     private String orderStatus;
 
-    @OneToMany(mappedBy = "order")
-    @JsonIgnore  // Prevent circular reference
-    private List<OrderDetails> orderDetails;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetails> orderDetails = new ArrayList<>();
 
     // Getters and Setters
     public Long getOrderId() {

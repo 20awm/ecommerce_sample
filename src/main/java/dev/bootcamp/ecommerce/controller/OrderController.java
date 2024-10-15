@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -69,8 +70,10 @@ public class OrderController {
         order.setOrderDate(LocalDateTime.now());
         order.setTotalAmount(purchaseRequest.getPayment().getAmount());
 
+        // Save the order first
         Order savedOrder = orderService.saveOrder(order);
 
+        // Now save the order details
         for (OrderDetailRequest detailRequest : purchaseRequest.getOrderDetails()) {
             OrderDetails orderDetails = new OrderDetails();
             orderDetails.setOrder(savedOrder);
@@ -80,6 +83,7 @@ public class OrderController {
             orderDetailsService.saveOrderDetail(orderDetails);
         }
 
+        // Save the payment
         Payment payment = new Payment();
         payment.setOrder(savedOrder);
         payment.setAmount(purchaseRequest.getPayment().getAmount());
@@ -88,12 +92,18 @@ public class OrderController {
         payment.setPaymentDate(LocalDateTime.now());
         paymentService.savePayment(payment);
 
+        // Save the purchase history
         PurchaseHistory purchaseHistory = new PurchaseHistory();
         purchaseHistory.setCustomer(order.getCustomer());
         purchaseHistory.setOrder(savedOrder);
         purchaseHistory.setPurchaseDate(LocalDateTime.now());
         purchaseHistory.setTotalAmount(order.getTotalAmount());
         purchaseHistoryService.savePurchaseHistory(purchaseHistory);
+
+        // Check payment status and process order completion if payment is confirmed
+        if ("PAID".equals(payment.getPaymentStatus())) {
+            orderService.processOrderCompletion(savedOrder);
+        }
 
         return ResponseEntity.ok(savedOrder);
     }
