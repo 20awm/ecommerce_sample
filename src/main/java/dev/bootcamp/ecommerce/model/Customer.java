@@ -17,6 +17,7 @@ public class Customer {
     private String address;
     private String phoneNumber;
     private LocalDateTime registrationDate;
+    private String role;  // Add this line
 
     @OneToMany(mappedBy = "customer")
     @JsonIgnore  // Prevent circular reference
@@ -77,6 +78,14 @@ public class Customer {
 
     public void setRegistrationDate(LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
+    }
+
+    public String getRole() {  // Add this getter
+        return role;
+    }
+
+    public void setRole(String role) {  // Add this setter
+        this.role = role;
     }
 
     public List<Order> getOrders() {
