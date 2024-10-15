@@ -1,7 +1,9 @@
 package dev.bootcamp.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "customers")
@@ -9,13 +11,16 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
-
     private String name;
     private String email;
     private String password;
     private String address;
     private String phoneNumber;
     private LocalDateTime registrationDate;
+
+    @OneToMany(mappedBy = "customer")
+    @JsonIgnore  // Prevent circular reference
+    private List<Order> orders;
 
     // Getters and Setters
     public Long getCustomerId() {
@@ -72,5 +77,13 @@ public class Customer {
 
     public void setRegistrationDate(LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }
