@@ -100,6 +100,7 @@ public class ProductController {
         return productService.updateProduct(id, productDetails);
     }
 
+
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

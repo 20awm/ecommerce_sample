@@ -4,6 +4,7 @@ import dev.bootcamp.ecommerce.model.Product;
 import dev.bootcamp.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,5 +56,17 @@ public class ProductService {
 
     public List<Product> searchProducts(String keyword) {
         return productRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+    }
+
+    @Transactional
+    public void updateStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        int newQuantity = product.getStockQuantity() - quantity;
+        if (newQuantity < 0) {
+            throw new RuntimeException("Insufficient stock for product: " + product.getName());
+        }
+        product.setStockQuantity(newQuantity);
+        productRepository.save(product);
     }
 }

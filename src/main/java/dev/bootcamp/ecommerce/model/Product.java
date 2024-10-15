@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "products")
 public class Product {
@@ -13,12 +11,25 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
 
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "price")
     private Double price;
+
+    @Column(name = "category")
     private String category;
+
+    @Column(name = "stock_quantity")
     private Integer stockQuantity;
+
+    @Column(name = "sku")
     private String sku;
+
+    @Column(name = "image_url")
     private String imageUrl;
 
     // Getters and Setters

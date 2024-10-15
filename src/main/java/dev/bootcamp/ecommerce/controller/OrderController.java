@@ -2,6 +2,7 @@ package dev.bootcamp.ecommerce.controller;
 
 import dev.bootcamp.ecommerce.dto.PurchaseRequest;
 import dev.bootcamp.ecommerce.dto.OrderDetailRequest;
+import dev.bootcamp.ecommerce.dto.StockUpdateRequest;
 import dev.bootcamp.ecommerce.model.Order;
 import dev.bootcamp.ecommerce.model.OrderDetails;
 import dev.bootcamp.ecommerce.model.Payment;
@@ -13,6 +14,7 @@ import dev.bootcamp.ecommerce.service.PaymentService;
 import dev.bootcamp.ecommerce.service.ProductService;
 import dev.bootcamp.ecommerce.service.PurchaseHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,10 +72,8 @@ public class OrderController {
         order.setOrderDate(LocalDateTime.now());
         order.setTotalAmount(purchaseRequest.getPayment().getAmount());
 
-        // Save the order first
         Order savedOrder = orderService.saveOrder(order);
 
-        // Now save the order details
         for (OrderDetailRequest detailRequest : purchaseRequest.getOrderDetails()) {
             OrderDetails orderDetails = new OrderDetails();
             orderDetails.setOrder(savedOrder);
@@ -81,9 +81,15 @@ public class OrderController {
             orderDetails.setQuantity(detailRequest.getQuantity());
             orderDetails.setPrice(detailRequest.getPrice());
             orderDetailsService.saveOrderDetail(orderDetails);
+
+            // Update stock quantity
+            try {
+                productService.updateStock(detailRequest.getProductId(), detailRequest.getQuantity());
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
         }
 
-        // Save the payment
         Payment payment = new Payment();
         payment.setOrder(savedOrder);
         payment.setAmount(purchaseRequest.getPayment().getAmount());
@@ -92,7 +98,6 @@ public class OrderController {
         payment.setPaymentDate(LocalDateTime.now());
         paymentService.savePayment(payment);
 
-        // Save the purchase history
         PurchaseHistory purchaseHistory = new PurchaseHistory();
         purchaseHistory.setCustomer(order.getCustomer());
         purchaseHistory.setOrder(savedOrder);
@@ -106,5 +111,15 @@ public class OrderController {
         }
 
         return ResponseEntity.ok(savedOrder);
+    }
+
+    @PostMapping("/update-stock")
+    public ResponseEntity<String> updateStock(@RequestBody StockUpdateRequest request) {
+        try {
+            productService.updateStock(request.getProductId(), request.getQuantity());
+            return ResponseEntity.ok("Stock updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }
