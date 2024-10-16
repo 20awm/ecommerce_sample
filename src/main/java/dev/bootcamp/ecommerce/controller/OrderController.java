@@ -81,13 +81,6 @@ public class OrderController {
             orderDetails.setQuantity(detailRequest.getQuantity());
             orderDetails.setPrice(detailRequest.getPrice());
             orderDetailsService.saveOrderDetail(orderDetails);
-
-            // Update stock quantity
-            try {
-                productService.updateStock(detailRequest.getProductId(), detailRequest.getQuantity());
-            } catch (RuntimeException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-            }
         }
 
         Payment payment = new Payment();
@@ -107,6 +100,13 @@ public class OrderController {
 
         // Check payment status and process order completion if payment is confirmed
         if ("PAID".equals(payment.getPaymentStatus())) {
+            for (OrderDetailRequest detailRequest : purchaseRequest.getOrderDetails()) {
+                try {
+                    productService.updateStock(detailRequest.getProductId(), detailRequest.getQuantity());
+                } catch (RuntimeException e) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+                }
+            }
             orderService.processOrderCompletion(savedOrder);
         }
 

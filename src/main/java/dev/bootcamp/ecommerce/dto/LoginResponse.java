@@ -3,10 +3,12 @@ package dev.bootcamp.ecommerce.dto;
 public class LoginResponse {
     private String status;
     private String message;
+    private String token; // Add this field
 
-    public LoginResponse(String status, String message) {
+    public LoginResponse(String status, String message, String token) {
         this.status = status;
         this.message = message;
+        this.token = token;
     }
 
     // Getters and Setters
@@ -24,5 +26,13 @@ public class LoginResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

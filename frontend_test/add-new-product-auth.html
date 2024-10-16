@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+</head>
+<body>
+<h1>Add New Product</h1>
+<form id="productForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required><br><br>
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" required><br><br>
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" required><br><br>
+    <label for="category">Category:</label>
+    <input type="text" id="category" name="category" required><br><br>
+    <label for="stockQuantity">Stock Quantity:</label>
+    <input type="number" id="stockQuantity" name="stockQuantity" required><br><br>
+    <label for="sku">SKU:</label>
+    <input type="text" id="sku" name="sku" required><br><br>
+    <label for="imageUrl">Image:</label>
+    <input type="file" id="imageUrl" name="imageUrl" required><br><br>
+    <button type="submit">Add Product</button>
+</form>
+
+<script>
+    document.getElementById('productForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const token = localStorage.getItem('jwtTokenTest'); // Retrieve the JWT token from local storage
+
+        const formData = new FormData();
+        formData.append('name', document.getElementById('name').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('category', document.getElementById('category').value);
+        formData.append('stockQuantity', document.getElementById('stockQuantity').value);
+        formData.append('sku', document.getElementById('sku').value);
+        formData.append('imageUrl', document.getElementById('imageUrl').files[0]);
+
+        try {
+            const response = await fetch('http://localhost:8080/products', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token // Include the JWT token in the Authorization header
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Product added successfully!');
+                console.log(data);
+            } else {
+                alert('Failed to add product');
+                console.error('Error:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+</script>
+</body>
+</html>
