@@ -30,4 +30,8 @@ public class AuthService {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return jwtUtil.generateToken(userDetails.getUsername());
     }
+
+    public Customer getCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
 }

@@ -2,8 +2,16 @@ package dev.bootcamp.ecommerce.controller;
 
 import dev.bootcamp.ecommerce.model.Product;
 import dev.bootcamp.ecommerce.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,6 +24,8 @@ import java.util.List;
 @RequestMapping("/products")
 @CrossOrigin(origins = "*")
 public class ProductController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @Autowired
     private ProductService productService;
@@ -100,7 +110,6 @@ public class ProductController {
         return productService.updateProduct(id, productDetails);
     }
 
-
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
@@ -109,5 +118,42 @@ public class ProductController {
     @GetMapping("/search")
     public List<Product> searchProducts(@RequestParam("keyword") String keyword) {
         return productService.searchProducts(keyword);
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<Resource> downloadImage(@PathVariable Long id) {
+        try {
+            Product product = productService.getProductById(id);
+            String imageUrl = product.getImageUrl();
+
+            // Log the image URL
+            logger.debug("Fetching image from URL: {}", imageUrl);
+
+            byte[] imageBytes;
+            if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+                // Fetch the image from the web URL
+                RestTemplate restTemplate = new RestTemplate();
+                imageBytes = restTemplate.getForObject(imageUrl, byte[].class);
+            } else {
+                // Fetch the image from the local file system
+                Path imagePath = Paths.get(imageUrl);
+                imageBytes = Files.readAllBytes(imagePath);
+            }
+
+            // Create a resource from the byte array
+            ByteArrayResource resource = new ByteArrayResource(imageBytes);
+
+            // Set the content type and attachment header
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=image.jpg");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(imageBytes.length)
+                    .body(resource);
+        } catch (Exception e) {
+            logger.error("Error fetching image for product ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
