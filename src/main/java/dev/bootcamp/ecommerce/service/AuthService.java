@@ -26,9 +26,19 @@ public class AuthService {
     private UserDetailsService userDetailsService;
 
     public String login(String email, String password) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        return jwtUtil.generateToken(userDetails.getUsername());
+        // Authenticate user (existing code)
+        // Fetch customer by email
+        Customer customer = customerRepository.findByEmail(email);
+        if (customer == null) {
+            // Handle case where customer doesn't exist
+            // (e.g., throw an exception or return an error response)
+        }
+        // Extract customer name
+        Long customerId = customer.getCustomerId();
+        String name = customer.getName();
+
+        // Generate JWT with name and email
+        return jwtUtil.generateToken(String.valueOf(customerId), name, email);
     }
 
     public Customer getCustomerByEmail(String email) {
