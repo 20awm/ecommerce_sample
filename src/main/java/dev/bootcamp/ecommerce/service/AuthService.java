@@ -36,9 +36,10 @@ public class AuthService {
         // Extract customer name
         Long customerId = customer.getCustomerId();
         String name = customer.getName();
+        String role = customer.getRole();
 
         // Generate JWT with name and email
-        return jwtUtil.generateToken(String.valueOf(customerId), name, email);
+        return jwtUtil.generateToken(String.valueOf(customerId), name, email, role);
     }
 
     public Customer getCustomerByEmail(String email) {
