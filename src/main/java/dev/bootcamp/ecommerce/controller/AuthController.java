@@ -5,6 +5,7 @@ import dev.bootcamp.ecommerce.dto.LoginResponse;
 import dev.bootcamp.ecommerce.model.Customer;
 import dev.bootcamp.ecommerce.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +17,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
         if (token != null) {
-            Customer customer = authService.getCustomerByEmail(loginRequest.getEmail());
-            String name = customer.getName();
-            String email = customer.getEmail();
-            String address = customer.getAddress();
-
-            return ResponseEntity.ok(new LoginResponse("200", "Login successful", token, name, email, address));
+            return ResponseEntity.ok(new LoginResponse("200", "Login successful", token));
         } else {
-            return ResponseEntity.status(401).body(new LoginResponse("401", "Invalid email or password", null, null, null, null));
+            LoginResponse errorResponse = new LoginResponse("401", "Login failed", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 }

@@ -9,9 +9,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 @Service
 public class AuthService {
+
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    public AuthService(BCryptPasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -27,19 +36,24 @@ public class AuthService {
 
     public String login(String email, String password) {
         // Authenticate user (existing code)
-        // Fetch customer by email
         Customer customer = customerRepository.findByEmail(email);
-        if (customer == null) {
-            // Handle case where customer doesn't exist
-            // (e.g., throw an exception or return an error response)
+        if (customer == null || !isValidPassword(customer, password)) {
+            // Handle invalid email or password
+            // (e.g., return an error response with appropriate status code)
+            return null; // Return null to indicate login failure
         }
-        // Extract customer name
+
+        // Generate JWT with customer ID and role
         Long customerId = customer.getCustomerId();
         String name = customer.getName();
         String role = customer.getRole();
-
-        // Generate JWT with name and email
         return jwtUtil.generateToken(String.valueOf(customerId), name, email, role);
+    }
+
+    private boolean isValidPassword(Customer customer, String providedPassword) {
+        // Compare provided password with stored hashed password
+        String storedHashedPassword = customer.getPassword(); // Retrieve from DB
+        return passwordEncoder.matches(providedPassword, storedHashedPassword);
     }
 
     public Customer getCustomerByEmail(String email) {
